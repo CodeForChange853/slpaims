@@ -61,7 +61,24 @@ app.include_router(categories.router, prefix="/api/categories", tags=["Categorie
 app.include_router(stock.router,      prefix="/api/stock",      tags=["Stock"])
 app.include_router(reports.router,    prefix="/api/reports",    tags=["Reports"])
 
-
+@app.get("/debug/users", tags=["Debug"])
+def debug_users():
+    db = SessionLocal()
+    try:
+        users = db.query(User).all()
+        return [
+            {
+                "id": u.id,
+                "username": u.username,
+                "full_name": u.full_name,
+                "role": u.role,
+                "is_active": u.is_active,
+            }
+            for u in users
+        ]
+    finally:
+        db.close()
+        
 @app.get("/", tags=["Health"])
 def root():
     return {"message": "SLPA-IMS API is running", "docs": "/docs"}
