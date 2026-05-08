@@ -1,7 +1,6 @@
 
 const _host = window.location.hostname || "localhost";
-const BASE_URL = "https://slpaims.onrender.com"
-
+const BASE_URL = "https://slpaims.onrender.com/api"
 function getToken() {
     return localStorage.getItem("slpa_token");
 }

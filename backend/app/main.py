@@ -48,6 +48,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "https://slpaims-1.onrender.com",
+    "https://slpaims.onrender.com",
 ]
 
 app.add_middleware(
