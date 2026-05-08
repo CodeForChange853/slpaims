@@ -1,0 +1,71 @@
+/* ── Sidebar active state ── */
+.nav-active {
+    background: #1e4d20;
+    color: #e8f5e3 !important;
+    border-left: 3px solid #22c55e;
+    padding-left: calc(1.25rem - 3px);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d6d3d1;
+    border-radius: 9999px;
+}
+
+/* ── Table row hover ── */
+tbody tr:hover {
+    background-color: #f0fdf4;
+}
+
+/* ── Stock bar ── */
+.stock-bar {
+    height: 6px;
+    border-radius: 9999px;
+    background: #e7e5e4;
+    overflow: hidden;
+}
+
+.stock-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width .4s ease;
+}
+
+/* ── Smooth fade in ── */
+.page-in {
+    animation: fadeIn .25s ease both;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ── Modal backdrop ── */
+.modal-backdrop {
+    backdrop-filter: blur(4px);
+}
+
+/* ── Print ── */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .sidebar,
+    nav {
+        display: none !important;
+    }
+}

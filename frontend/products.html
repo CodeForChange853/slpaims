@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLPA-IMS | Products</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+
+<body class="bg-stone-100 min-h-screen">
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+    <script>renderSidebar("products"); renderConfirmModal();</script>
+
+    <div class="ml-64 flex flex-col min-h-screen">
+        <div
+            class="bg-white border-b border-gray-200 px-8 h-16 flex items-center justify-between sticky top-0 z-30 no-print">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800" style="font-family:Georgia,serif">Products</h1>
+                <p class="text-xs text-gray-400">Manage product catalog</p>
+            </div>
+            <button onclick="openModal()"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition hover:-translate-y-0.5"
+                style="background:linear-gradient(135deg,#14532d,#16a34a)">
+                ＋ Add Product
+            </button>
+        </div>
+
+        <div class="p-8 page-in">
+            <!-- Toolbar -->
+            <div class="flex gap-3 mb-5 flex-wrap">
+                <div class="relative flex-1 min-w-[200px] max-w-xs">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+                    <input id="search" type="text" placeholder="Search products…" oninput="loadProducts()"
+                        class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <select id="cat-filter" onchange="loadProducts()"
+                    class="px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr
+                                class="bg-stone-50 text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
+                                <th class="px-6 py-3 text-left">#</th>
+                                <th class="px-4 py-3 text-left">Product Name</th>
+                                <th class="px-4 py-3 text-left">Category</th>
+                                <th class="px-4 py-3 text-left">Price</th>
+                                <th class="px-4 py-3 text-left">Stock</th>
+                                <th class="px-4 py-3 text-left">Status</th>
+                                <th class="px-4 py-3 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prod-table">
+                            <tr>
+                                <td colspan="7" class="px-6 py-10 text-center text-gray-400">Loading…</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT MODAL -->
+    <div id="prod-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop bg-black bg-opacity-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+            <div class="flex items-center justify-between px-7 pt-6 pb-0">
+                <h2 id="modal-title" class="text-lg font-bold text-gray-800" style="font-family:Georgia,serif">Add
+                    Product</h2>
+                <button onclick="closeModal()"
+                    class="text-gray-400 hover:text-gray-600 text-xl leading-none p-1">✕</button>
+            </div>
+            <div class="px-7 py-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="label">Product Name *</label>
+                        <input id="f-name" type="text" class="field" placeholder="e.g. Premium Rice 50kg">
+                        <div id="err-name" class="text-xs text-red-500 mt-1 hidden"></div>
+                    </div>
+                    <div>
+                        <label class="label">Category</label>
+                        <select id="f-cat" class="field">
+                            <option value="">Select…</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">Unit Price (₱) *</label>
+                        <input id="f-price" type="number" class="field" min="0" step="0.01" placeholder="0.00">
+                        <div id="err-price" class="text-xs text-red-500 mt-1 hidden"></div>
+                    </div>
+                    <div>
+                        <label class="label">Initial Quantity *</label>
+                        <input id="f-qty" type="number" class="field" min="0" placeholder="0">
+                        <div id="err-qty" class="text-xs text-red-500 mt-1 hidden"></div>
+                    </div>
+                    <div>
+                        <label class="label">Low Stock Threshold</label>
+                        <input id="f-threshold" type="number" class="field" min="1" value="10">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="label">Description</label>
+                        <textarea id="f-desc" class="field" rows="2"
+                            placeholder="Brief product description…"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 px-7 pb-6">
+                <button onclick="closeModal()"
+                    class="px-5 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">Cancel</button>
+                <button onclick="saveProduct()"
+                    class="px-5 py-2 rounded-lg text-white text-sm font-semibold transition hover:-translate-y-0.5"
+                    style="background:linear-gradient(135deg,#14532d,#16a34a)">💾 Save Product</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #4b5563;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-bottom: 4px;
+        }
+
+        .field {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            color: #111827;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .field:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, .1);
+        }
+    </style>
+    <script src="assets/js/products.js"></script>
+</body>
+
+</html>

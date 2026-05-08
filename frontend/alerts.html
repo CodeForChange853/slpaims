@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLPA-IMS | Low Stock Alerts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+
+<body class="bg-stone-100 min-h-screen">
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+    <script>renderSidebar("alerts"); renderConfirmModal();</script>
+
+    <div class="ml-64 flex flex-col min-h-screen">
+        <div class="bg-white border-b border-gray-200 px-8 h-16 flex items-center sticky top-0 z-30 no-print">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800" style="font-family:Georgia,serif">Low Stock Alerts</h1>
+                <p class="text-xs text-gray-400">Products requiring restocking attention</p>
+            </div>
+        </div>
+
+        <div class="p-8 page-in">
+            <div id="alert-banner"
+                class="hidden mb-6 flex items-start gap-4 px-5 py-4 rounded-xl bg-amber-50 border border-amber-200">
+                <span class="text-2xl">⚠️</span>
+                <div>
+                    <div class="font-semibold text-amber-700">Attention Required</div>
+                    <div id="alert-msg" class="text-sm text-amber-600 mt-0.5"></div>
+                </div>
+            </div>
+
+            <div id="alerts-grid" class="grid gap-5" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 animate-pulse h-36"></div>
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 animate-pulse h-36"></div>
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 animate-pulse h-36"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadAlerts() {
+            const low = await api.get("/products/low-stock") || [];
+            const critical = low.filter(p => p.quantity === 0);
+            const warning = low.filter(p => p.quantity > 0);
+
+            const banner = document.getElementById("alert-banner");
+            if (low.length) {
+                banner.classList.remove("hidden");
+                document.getElementById("alert-msg").textContent =
+                    `${low.length} product(s) below threshold — ${critical.length} out of stock, ${warning.length} running low.`;
+            }
+
+            const grid = document.getElementById("alerts-grid");
+            if (!low.length) {
+                grid.innerHTML = `
+      <div class="col-span-full flex flex-col items-center py-16 text-center">
+        <div class="text-5xl mb-4">✅</div>
+        <h3 class="text-lg font-semibold text-gray-700">All products are well-stocked!</h3>
+        <p class="text-sm text-gray-400 mt-2">No items below their minimum threshold.</p>
+      </div>`;
+                return;
+            }
+
+            grid.innerHTML = low.map(p => {
+                const isOut = p.quantity === 0;
+                const need = Math.max(0, p.threshold - p.quantity);
+                return `
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="h-1 ${isOut ? "bg-red-500" : "bg-amber-400"}"></div>
+      <div class="p-5">
+        <div class="font-semibold text-gray-800 leading-tight mb-1">${p.name}</div>
+        <div class="text-xs text-gray-400 mb-4">${p.category_name || "—"}</div>
+        <div class="flex items-end justify-between">
+          <div>
+            <div class="text-3xl font-bold ${isOut ? "text-red-600" : "text-amber-600"}">${p.quantity}</div>
+            <div class="text-xs text-gray-400 mt-0.5">threshold: ${p.threshold} units</div>
+          </div>
+          <div class="text-right">
+            ${isOut
+                        ? '<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700">Out of Stock</span>'
+                        : '<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">Low Stock</span>'}
+            <div class="text-xs text-gray-400 mt-1">Need ${need} more</div>
+          </div>
+        </div>
+        <a href="stock.html" class="mt-4 flex items-center justify-center gap-2 w-full py-2 rounded-lg text-white text-xs font-semibold transition hover:-translate-y-0.5"
+           style="background:linear-gradient(135deg,#14532d,#16a34a)">📥 Go Restock</a>
+      </div>
+    </div>`;
+            }).join("");
+        }
+
+        loadAlerts();
+    </script>
+</body>
+
+</html>

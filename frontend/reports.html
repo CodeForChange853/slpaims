@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLPA-IMS | Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+
+<body class="bg-stone-100 min-h-screen">
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get("tab") || "inventory";
+        renderSidebar(activeTab === "sales" ? "sales-report" : "inventory-report");
+        renderConfirmModal();
+    </script>
+
+    <div class="ml-64 flex flex-col min-h-screen">
+        <div
+            class="bg-white border-b border-gray-200 px-8 h-16 flex items-center justify-between sticky top-0 z-30 no-print">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800" id="page-title" style="font-family:Georgia,serif">Reports
+                </h1>
+                <p class="text-xs text-gray-400" id="page-sub">Inventory &amp; sales analytics</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex gap-1 bg-stone-100 rounded-lg p-1">
+                    <button id="tab-inv" onclick="switchTab('inventory')"
+                        class="px-4 py-1.5 rounded-md text-sm font-medium transition">Inventory</button>
+                    <button id="tab-sales" onclick="switchTab('sales')"
+                        class="px-4 py-1.5 rounded-md text-sm font-medium transition">Sales</button>
+                </div>
+                <button onclick="window.print()"
+                    class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">🖨
+                    Print</button>
+            </div>
+        </div>
+
+        <div class="p-8 page-in">
+            <!-- INVENTORY TAB -->
+            <div id="pane-inventory">
+                <div class="grid grid-cols-3 gap-4 mb-6" id="inv-summary"></div>
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-800 text-sm">Stock Levels
+                        </div>
+                        <div class="p-4" style="height:260px"><canvas id="chart-bar"></canvas></div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-800 text-sm">Value by
+                            Category</div>
+                        <div class="p-4" style="height:260px"><canvas id="chart-pie"></canvas></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-800 text-sm">Full Inventory
+                        Listing</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr
+                                    class="bg-stone-50 text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
+                                    <th class="px-6 py-3 text-left">#</th>
+                                    <th class="px-4 py-3 text-left">Product</th>
+                                    <th class="px-4 py-3 text-left">Category</th>
+                                    <th class="px-4 py-3 text-right">Price</th>
+                                    <th class="px-4 py-3 text-right">Qty</th>
+                                    <th class="px-4 py-3 text-right">Total Value</th>
+                                    <th class="px-4 py-3 text-left">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inv-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SALES TAB -->
+            <div id="pane-sales" class="hidden">
+                <div class="grid grid-cols-3 gap-4 mb-6" id="sales-summary"></div>
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+                    <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-800 text-sm">Sales Trend
+                        (Last 7 Days)</div>
+                    <div class="p-4" style="height:260px"><canvas id="chart-line"></canvas></div>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-800 text-sm">Sales
+                        Transaction Log</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr
+                                    class="bg-stone-50 text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
+                                    <th class="px-6 py-3 text-left">#</th>
+                                    <th class="px-4 py-3 text-left">Date</th>
+                                    <th class="px-4 py-3 text-left">Product</th>
+                                    <th class="px-4 py-3 text-right">Qty</th>
+                                    <th class="px-4 py-3 text-right">Unit Price</th>
+                                    <th class="px-4 py-3 text-right">Revenue</th>
+                                    <th class="px-4 py-3 text-left">Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/reports.js"></script>
+</body>
+
+</html>
