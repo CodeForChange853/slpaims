@@ -1,16 +1,37 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine, Base
+from app.database import engine, Base, SessionLocal
 from app.routers import auth, products, categories, stock, reports
+from app.models.user import User
+from app.utils.security import hash_password
 
 Base.metadata.create_all(bind=engine)
+
+def seed_admin():
+    db = SessionLocal()
+    try:
+        existing = db.query(User).filter(User.username == "admin").first()
+        if not existing:
+            db.add(User(
+                username="admin",
+                full_name="Administrator",
+                role="admin",
+                hashed_password=hash_password("adminsamboy123"),
+                is_active=True,
+            ))
+            db.commit()
+    except Exception as e:
+        db.rollback()
+    finally:
+        db.close()
+
+seed_admin()
 
 app = FastAPI(
     title="SLPA-IMS API",
     description="Inventory Management System for Napalisan Islanders General Merchandise",
     version="1.0.0",
 )
-
 
 ALLOWED_ORIGINS = [
     "null",
@@ -22,7 +43,7 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://slpaims.pythonanywhere.com",
+    "https://slpaims-1.onrender.com",
 ]
 
 app.add_middleware(
