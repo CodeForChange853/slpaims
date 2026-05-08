@@ -6,6 +6,6 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 python-dotenv==1.0.1
 pydantic[email]==2.7.1
+pydantic-core==2.18.2
 pydantic-settings==2.2.1
 python-multipart==0.0.9
-a2wsgi==1.10.7
