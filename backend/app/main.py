@@ -20,8 +20,12 @@ def seed_admin():
                 is_active=True,
             ))
             db.commit()
+            print("✅ Admin seeded successfully")
+        else:
+            print("ℹ️ Admin already exists")
     except Exception as e:
         db.rollback()
+        print(f"❌ seed_admin error: {e}")
     finally:
         db.close()
 
